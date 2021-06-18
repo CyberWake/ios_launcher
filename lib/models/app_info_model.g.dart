@@ -19,7 +19,7 @@ class AppInfoAdapter extends TypeAdapter<AppInfo> {
     return AppInfo(
       appName: fields[0] as String,
       appPackage: fields[1] as String,
-      appIcon: fields[2] as String,
+      appIcon: fields[2] as Uint8List,
       appCategory: fields[3] as String,
     );
   }

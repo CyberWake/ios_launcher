@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:hive/hive.dart';
 
 part 'app_info_model.g.dart';
@@ -23,7 +25,7 @@ class AppInfo {
   @HiveField(1)
   String appPackage;
   @HiveField(2)
-  String appIcon;
+  Uint8List appIcon;
   @HiveField(3)
   String appCategory;
 

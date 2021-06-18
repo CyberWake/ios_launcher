@@ -46,11 +46,13 @@ class _MyHomePageState extends State<MyHomePage> {
   static const platform =
       const MethodChannel('com.cyberwake.ioslauncher/platformData');
   int _counter = 0;
-  late List result;
+  late List result = [];
+  final retrievedCategoryApps = [];
+  final List<CategoryApps> categoryAppsList = [];
 
   Future<void> getApps() async {
     try {
-      result = (await platform.invokeListMethod('getApps'))!;
+      result = (await platform.invokeListMethod('getApps')) ?? [];
       if (result.isNotEmpty) {
         result.sort((a, b) {
           return a['appName']
@@ -60,7 +62,6 @@ class _MyHomePageState extends State<MyHomePage> {
         final String playStoreUrl =
             "https://play.google.com/store/apps/details?id=";
         for (int i = 0; i < result.length; i++) {
-          print(result[i]['appName']);
           var response =
               await http.get(Uri.parse('$playStoreUrl${result[i]['package']}'));
           if (response.statusCode == 200) {
@@ -77,7 +78,8 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         });
         List<AppInfo> applications = AppInfo.listOfMapToListOfAppInfo(result);
-        final List<CategoryApps> categoryApps = [];
+        categoryAppsList.add(CategoryApps(
+            categoryApps: applications, categoryName: 'SortedAllApp'));
         for (int i = 0; i < categoryNames.length; i++) {
           List<AppInfo> category = [];
           applications.forEach((element) {
@@ -87,26 +89,21 @@ class _MyHomePageState extends State<MyHomePage> {
           });
           CategoryApps apps = CategoryApps(
               categoryApps: category, categoryName: categoryNames[i]);
-          categoryApps.add(apps);
+          categoryAppsList.add(apps);
         }
-        categoryApps.sort((a, b) {
-          return a.categoryApps.length.compareTo(b.categoryApps.length);
+        categoryAppsList.sort((a, b) {
+          return a.categoryName.compareTo(b.categoryName);
         });
-        categoryApps.forEach((element) {
-          print(
-              '\ncategory: ${element.categoryName}, apps: ${element.categoryApps.length}\n ');
-          element.categoryApps.forEach((ele) {
-            if (element.categoryName != 'Undefined') {
-              print(ele.appName);
-            } else {
-              print(ele.appPackage);
-            }
-          });
-        });
-        final box = Hive.box<CategoryApps>('categoryApps');
-        if (box.length == 0) {
-          categoryApps.forEach((element) {
+        if (result.isNotEmpty) {
+          final box = Hive.box<CategoryApps>('categoryApps');
+          if (box.length != 0) {
+            box.clear();
+          }
+          categoryAppsList.forEach((element) {
             box.add(element);
+          });
+          setState(() {
+            print('saved');
           });
         }
       }
@@ -116,7 +113,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   retrieve() {
-    final retrievedCategoryApps = [];
     final box = Hive.box<CategoryApps>('categoryApps');
     for (int i = 0; i < box.length; i++) {
       retrievedCategoryApps.add(box.getAt(i));
@@ -134,11 +130,15 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  clearHive() {
+    final box = Hive.box<CategoryApps>('categoryApps');
+    box.clear();
+  }
+
   @override
   void initState() {
     final box = Hive.box<CategoryApps>('categoryApps');
     if (box.isEmpty) {
-      print('here');
       getApps();
     } else {
       print('here1');
@@ -164,12 +164,15 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            if (result.isNotEmpty)
+              Image.memory(categoryAppsList[0].categoryApps[0].appIcon)
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        // onPressed: getApps,
-        onPressed: retrieve,
+        onPressed: getApps,
+        // onPressed: retrieve,
+        // onPressed: clearHive,
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ),
