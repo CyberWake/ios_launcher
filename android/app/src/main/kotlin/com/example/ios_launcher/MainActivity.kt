@@ -13,8 +13,8 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.N_MR1
 import android.provider.MediaStore
 import android.provider.Telephony
-import android.util.Log
 import androidx.annotation.NonNull
+import io.flutter.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -26,17 +26,40 @@ class MainActivity: FlutterActivity() {
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        var uriSchema: String
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channel).setMethodCallHandler {
             call, result ->
             when (call.method) {
                 "getApps" -> {
                     result.success(getApps())
                 }
+                "launchApp" -> {
+                    uriSchema = call.argument<String>("uri").toString()
+                    result.success(launchApp(uriSchema))
+                }
                 else -> {
                     result.notImplemented()
                 }
             }
         }
+    }
+
+    private fun launchApp(packageName: String): Boolean {
+        Log.i("packageName",packageName)
+        val intent:Intent? = packageManager.getLaunchIntentForPackage(packageName)
+
+        // Add category to intent
+        intent?.addCategory(Intent.CATEGORY_LAUNCHER)
+
+        // If intent is not null then launch the app
+        if(intent!=null){
+            applicationContext.startActivity(intent)
+            Log.i("launchStatus","launched")
+            return true
+        }
+        Log.i("launchStatus","failed")
+        return false
+
     }
 
     @SuppressLint("QueryPermissionsNeeded")
@@ -48,19 +71,19 @@ class MainActivity: FlutterActivity() {
             var pkgAppsList = packageManager.queryIntentActivities(mainIntent, 0)
             val info0 = pkgAppsList[0].activityInfo.applicationInfo
             res.add(mapOf("appName" to info0.loadLabel(packageManager),"package" to info0.packageName,"icon" to drawableToByteArray(info0.loadIcon(packageManager)),"category" to "Tray Apps"))
-            Log.i("info0",res[0].toString())
+            //Log.i("info0",res[0].toString())
 
             mainIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             pkgAppsList =
                 packageManager.queryIntentActivities(mainIntent, PackageManager.MATCH_DEFAULT_ONLY)
             val info1 = pkgAppsList[0].activityInfo.applicationInfo
             res.add(mapOf("appName" to info1.loadLabel(packageManager),"package" to info1.packageName,"icon" to drawableToByteArray(info1.loadIcon(packageManager)),"category" to "Tray Apps"))
-            Log.i("info1",res[1].toString())
+            //Log.i("info1",res[1].toString())
 
             val smsPkgName = Telephony.Sms.getDefaultSmsPackage(context)
             val info2 = packageManager.getApplicationInfo(smsPkgName, 0)
             res.add(mapOf("appName" to info2.loadLabel(packageManager),"package" to info2.packageName,"icon" to drawableToByteArray(info2.loadIcon(packageManager)),"category" to "Tray Apps"))
-            Log.i("info2",res[2].toString())
+            //Log.i("info2",res[2].toString())
 
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://"))
             val resolveInfo = packageManager.resolveActivity(
@@ -69,7 +92,7 @@ class MainActivity: FlutterActivity() {
             )
             val info3 = resolveInfo!!.activityInfo.applicationInfo
             res.add(mapOf("appName" to info3.loadLabel(packageManager),"package" to info3.packageName,"icon" to drawableToByteArray(info3.loadIcon(packageManager)),"category" to "Tray Apps"))
-            Log.i("info3",res[3].toString())
+            //Log.i("info3",res[3].toString())
             val packs = packageManager.getInstalledApplications(0)
             for (i in packs.indices) {
                 val p = packs[i]
@@ -88,7 +111,7 @@ class MainActivity: FlutterActivity() {
                             )
                         )
                     }
-                    Log.i("app",res.last().toString())
+              //      Log.i("app",res.last().toString())
                 }
             }
         }

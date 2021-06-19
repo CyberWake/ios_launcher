@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,8 +10,13 @@ import 'package:ios_launcher/models/app_info_model.dart';
 import 'package:ios_launcher/models/category_app_model.dart';
 import 'package:path_provider/path_provider.dart' as path;
 
+import 'app_drawer.dart';
+import 'home_apps.dart';
+
+const platform = const MethodChannel('com.cyberwake.ioslauncher/platformData');
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
   final Directory dir = await path.getApplicationDocumentsDirectory();
   Hive
     ..init(dir.path)
@@ -25,30 +31,26 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
+  MyHomePage({Key? key}) : super(key: key);
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  static const platform =
-      const MethodChannel('com.cyberwake.ioslauncher/platformData');
-  int _counter = 0;
   late List result = [];
-  final retrievedCategoryApps = [];
+  late List<CategoryApps> retrievedCategoryApps = [];
   final List<CategoryApps> categoryAppsList = [];
+  int pageIndex = 0;
 
   Future<void> getApps() async {
     try {
@@ -62,12 +64,14 @@ class _MyHomePageState extends State<MyHomePage> {
         final String playStoreUrl =
             "https://play.google.com/store/apps/details?id=";
         for (int i = 0; i < result.length; i++) {
-          var response =
-              await http.get(Uri.parse('$playStoreUrl${result[i]['package']}'));
-          if (response.statusCode == 200) {
-            var document = parse(response.body);
-            result[i]['category'] =
-                document.querySelector('a[itemprop]="genre"')!.text;
+          if (result[i]['category'] == "Undefined") {
+            var response = await http
+                .get(Uri.parse('$playStoreUrl${result[i]['package']}'));
+            if (response.statusCode == 200) {
+              var document = parse(response.body);
+              result[i]['category'] =
+                  document.querySelector('a[itemprop]="genre"')!.text;
+            }
           }
         }
         List categoryNames = [];
@@ -77,6 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
             categoryNames.add(element['category']);
           }
         });
+        print(categoryNames.length);
         List<AppInfo> applications = AppInfo.listOfMapToListOfAppInfo(result);
         categoryAppsList.add(CategoryApps(
             categoryApps: applications, categoryName: 'SortedAllApp'));
@@ -103,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
             box.add(element);
           });
           setState(() {
+            retrievedCategoryApps = categoryAppsList;
             print('saved');
           });
         }
@@ -114,25 +120,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
   retrieve() {
     final box = Hive.box<CategoryApps>('categoryApps');
+    retrievedCategoryApps = [];
+    print(box.length);
     for (int i = 0; i < box.length; i++) {
-      retrievedCategoryApps.add(box.getAt(i));
+      retrievedCategoryApps.add(box.getAt(i)!);
     }
     retrievedCategoryApps.forEach((element) {
       print(
-          '\ncategory: ${element.categoryName}, apps: ${element.categoryApps.length}\n ');
-      element.categoryApps.forEach((ele) {
-        if (element.categoryName != 'Undefined') {
-          print(ele.appName);
-        } else {
-          print(ele.appPackage);
-        }
-      });
+          'category: ${element.categoryName}, apps: ${element.categoryApps.length}\n ');
     });
+    setState(() {});
   }
 
   clearHive() {
-    final box = Hive.box<CategoryApps>('categoryApps');
-    box.clear();
+    print(retrievedCategoryApps
+            .where((element) => element.categoryName == "SortedAllApp")
+            .toList()
+            .first
+            .categoryApps
+            .length %
+        20);
+    // retrievedCategoryApps.forEach((element) {
+    //   print(element.categoryName);
+    // });
+    // final box = Hive.box<CategoryApps>('categoryApps');
+    // box.clear();
   }
 
   @override
@@ -149,32 +161,161 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+    print(MediaQuery.of(context).size.height);
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            Container(
+              margin: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.height * 0.0375),
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/background.jpg'),
+                      fit: BoxFit.fitWidth)),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            if (result.isNotEmpty)
-              Image.memory(categoryAppsList[0].categoryApps[0].appIcon)
+            if (pageIndex != 0)
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                child: Container(
+                  alignment: Alignment.topLeft,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFFffffff).withOpacity(0.5),
+                          Colors.pink.withOpacity(0.2),
+                        ],
+                        stops: [
+                          0.1,
+                          1,
+                        ]),
+                  ),
+                ),
+              ),
+            PageView.builder(
+                onPageChanged: (index) {
+                  setState(() {
+                    pageIndex = index;
+                  });
+                },
+                itemCount: 2,
+                itemBuilder: (BuildContext context, int screenIndex) {
+                  if (screenIndex == 0)
+                    return Stack(
+                      children: [
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.0375,
+                          color: Colors.grey,
+                        ),
+                        Align(
+                            alignment: Alignment.topCenter,
+                            child: HomeApps(
+                                apps: retrievedCategoryApps
+                                    .where((element) =>
+                                        element.categoryName == "SortedAllApp")
+                                    .toList()
+                                    .first)),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                              height: MediaQuery.of(context).size.height * 0.12,
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 22.5),
+                              decoration: BoxDecoration(
+                                  color: Colors.white30.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(20)),
+                              child: Center(
+                                child: ReorderableListView(
+                                  scrollDirection: Axis.horizontal,
+                                  shrinkWrap: true,
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  physics: NeverScrollableScrollPhysics(),
+                                  children: <Widget>[
+                                    for (final items in retrievedCategoryApps
+                                        .where((element) =>
+                                            element.categoryName == "Tray Apps")
+                                        .toList()
+                                        .first
+                                        .categoryApps)
+                                      GestureDetector(
+                                        key: ValueKey(items),
+                                        onTap: () async {
+                                          Map<String, dynamic> args =
+                                              <String, dynamic>{};
+                                          args.putIfAbsent(
+                                              'uri', () => items.appPackage);
+                                          await platform.invokeMethod(
+                                              "launchApp", args);
+                                        },
+                                        child: Container(
+                                          height: 65,
+                                          width: 65,
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              image: DecorationImage(
+                                                  image: MemoryImage(
+                                                      items.appIcon))),
+                                        ),
+                                      )
+                                  ],
+                                  onReorder: (int oldIndex, int newIndex) {
+                                    setState(() {
+                                      if (newIndex > oldIndex) {
+                                        newIndex -= 1;
+                                      }
+                                      final items = retrievedCategoryApps
+                                          .where((element) =>
+                                              element.categoryName ==
+                                              "Tray Apps")
+                                          .toList()
+                                          .first
+                                          .categoryApps
+                                          .removeAt(oldIndex);
+                                      retrievedCategoryApps
+                                          .where((element) =>
+                                              element.categoryName ==
+                                              "Tray Apps")
+                                          .toList()
+                                          .first
+                                          .categoryApps
+                                          .insert(newIndex, items);
+                                    });
+                                  },
+                                ),
+                              )),
+                        )
+                      ],
+                    );
+                  else
+                    return Stack(
+                      children: [
+                        AppDrawer(
+                          allCategoryApps: retrievedCategoryApps
+                              .where((element) =>
+                                  element.categoryName != "SortedAllApp" &&
+                                  element.categoryName != "Trap Apps" &&
+                                  element.categoryName != "Undefined")
+                              .toList(),
+                        ),
+                      ],
+                    );
+                }),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: getApps,
-        // onPressed: retrieve,
-        // onPressed: clearHive,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+        floatingActionButton: FloatingActionButton(
+          // onPressed: getApps,
+          // onPressed: retrieve,
+          onPressed: clearHive,
+          tooltip: 'Increment',
+          child: Icon(Icons.add),
+        ),
       ),
     );
   }
