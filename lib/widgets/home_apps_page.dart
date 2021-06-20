@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ios_launcher/drag_and_drop_gridview/dev_drag.dart';
 import 'package:ios_launcher/models/app_info_model.dart';
 
-import 'app.dart';
+import 'package:ios_launcher/widgets/app.dart';
 
 class HomeAppsPage extends StatefulWidget {
   const HomeAppsPage({Key? key, required this.pageApps}) : super(key: key);
@@ -25,11 +25,11 @@ class _HomeAppsPageState extends State<HomeAppsPage> {
   Widget build(BuildContext context) {
     return DragAndDropGridView(
       // physics: NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         childAspectRatio: 0.7,
       ),
-      padding: EdgeInsets.symmetric(horizontal: 22.5),
+      padding: const EdgeInsets.symmetric(horizontal: 22.5),
       itemBuilder: (context, index) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -44,7 +44,7 @@ class _HomeAppsPageState extends State<HomeAppsPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Text(
                   pageApps[index].appName.split(' ')[0],
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

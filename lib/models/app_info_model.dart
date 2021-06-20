@@ -14,10 +14,10 @@ class AppInfo {
 
   factory AppInfo.fromJson(Map<String, dynamic> json) {
     return AppInfo(
-        appName: json['appName'],
-        appPackage: json['package'],
-        appIcon: json['icon'],
-        appCategory: json['category']);
+        appName: json['appName'] as String,
+        appPackage: json['package'] as String,
+        appIcon: json['icon'] as Uint8List,
+        appCategory: json['category'] as String);
   }
 
   @HiveField(0)
@@ -29,7 +29,7 @@ class AppInfo {
   @HiveField(3)
   String appCategory;
 
-  static listOfMapToListOfAppInfo(List<dynamic> appList) {
+  static List<AppInfo> listOfMapToListOfAppInfo(List<dynamic> appList) {
     final List<AppInfo> _applications = [];
     appList.forEach((element) {
       _applications.add(AppInfo.fromJson({

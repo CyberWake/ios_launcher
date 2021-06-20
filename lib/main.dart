@@ -6,14 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
+import 'package:ios_launcher/app_drawer.dart';
+import 'package:ios_launcher/home_apps.dart';
 import 'package:ios_launcher/models/app_info_model.dart';
 import 'package:ios_launcher/models/category_app_model.dart';
 import 'package:path_provider/path_provider.dart' as path;
 
-import 'app_drawer.dart';
-import 'home_apps.dart';
-
-const platform = const MethodChannel('com.cyberwake.ioslauncher/platformData');
+const platform = MethodChannel('com.cyberwake.ioslauncher/platformData');
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
@@ -35,13 +34,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({Key? key}) : super(key: key);
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -58,41 +57,43 @@ class _MyHomePageState extends State<MyHomePage> {
       if (result.isNotEmpty) {
         result.sort((a, b) {
           return a['appName']
+              .toString()
               .toLowerCase()
-              .compareTo(b['appName'].toLowerCase());
+              .compareTo(b['appName'].toString().toLowerCase());
         });
-        final String playStoreUrl =
+        const String playStoreUrl =
             "https://play.google.com/store/apps/details?id=";
         for (int i = 0; i < result.length; i++) {
           if (result[i]['category'] == "Undefined") {
-            var response = await http
+            final response = await http
                 .get(Uri.parse('$playStoreUrl${result[i]['package']}'));
             if (response.statusCode == 200) {
-              var document = parse(response.body);
+              final document = parse(response.body);
               result[i]['category'] =
                   document.querySelector('a[itemprop]="genre"')!.text;
             }
           }
         }
-        List categoryNames = [];
+        final List<String> categoryNames = [];
         print(result.length);
         result.forEach((element) {
           if (!categoryNames.contains(element['category'])) {
-            categoryNames.add(element['category']);
+            categoryNames.add(element['category'] as String);
           }
         });
         print(categoryNames.length);
-        List<AppInfo> applications = AppInfo.listOfMapToListOfAppInfo(result);
+        final List<AppInfo> applications =
+            AppInfo.listOfMapToListOfAppInfo(result);
         categoryAppsList.add(CategoryApps(
             categoryApps: applications, categoryName: 'SortedAllApp'));
         for (int i = 0; i < categoryNames.length; i++) {
-          List<AppInfo> category = [];
+          final List<AppInfo> category = [];
           applications.forEach((element) {
             if (element.appCategory == categoryNames[i]) {
               category.add(element);
             }
           });
-          CategoryApps apps = CategoryApps(
+          final CategoryApps apps = CategoryApps(
               categoryApps: category, categoryName: categoryNames[i]);
           categoryAppsList.add(apps);
         }
@@ -170,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               margin: EdgeInsets.only(
                   top: MediaQuery.of(context).size.height * 0.0375),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   image: DecorationImage(
                       image: AssetImage('assets/background.jpg'),
                       fit: BoxFit.fitWidth)),
@@ -186,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFFffffff).withOpacity(0.5),
+                          const Color(0xFFffffff).withOpacity(0.5),
                           Colors.pink.withOpacity(0.2),
                         ],
                         stops: [
@@ -204,7 +205,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 itemCount: 2,
                 itemBuilder: (BuildContext context, int screenIndex) {
-                  if (screenIndex == 0)
+                  if (screenIndex == 0) {
                     return Stack(
                       children: [
                         Container(
@@ -223,7 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           alignment: Alignment.bottomCenter,
                           child: Container(
                               height: MediaQuery.of(context).size.height * 0.12,
-                              margin: EdgeInsets.symmetric(
+                              margin: const EdgeInsets.symmetric(
                                   vertical: 15, horizontal: 22.5),
                               decoration: BoxDecoration(
                                   color: Colors.white30.withOpacity(0.5),
@@ -232,39 +233,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: ReorderableListView(
                                   scrollDirection: Axis.horizontal,
                                   shrinkWrap: true,
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  physics: NeverScrollableScrollPhysics(),
-                                  children: <Widget>[
-                                    for (final items in retrievedCategoryApps
-                                        .where((element) =>
-                                            element.categoryName == "Tray Apps")
-                                        .toList()
-                                        .first
-                                        .categoryApps)
-                                      GestureDetector(
-                                        key: ValueKey(items),
-                                        onTap: () async {
-                                          Map<String, dynamic> args =
-                                              <String, dynamic>{};
-                                          args.putIfAbsent(
-                                              'uri', () => items.appPackage);
-                                          await platform.invokeMethod(
-                                              "launchApp", args);
-                                        },
-                                        child: Container(
-                                          height: 65,
-                                          width: 65,
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 5),
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              image: DecorationImage(
-                                                  image: MemoryImage(
-                                                      items.appIcon))),
-                                        ),
-                                      )
-                                  ],
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  physics: const NeverScrollableScrollPhysics(),
                                   onReorder: (int oldIndex, int newIndex) {
                                     setState(() {
                                       if (newIndex > oldIndex) {
@@ -288,12 +259,43 @@ class _MyHomePageState extends State<MyHomePage> {
                                           .insert(newIndex, items);
                                     });
                                   },
+                                  children: <Widget>[
+                                    for (final items in retrievedCategoryApps
+                                        .where((element) =>
+                                            element.categoryName == "Tray Apps")
+                                        .toList()
+                                        .first
+                                        .categoryApps)
+                                      GestureDetector(
+                                        key: ValueKey(items),
+                                        onTap: () async {
+                                          final Map<String, dynamic> args =
+                                              <String, dynamic>{};
+                                          args.putIfAbsent(
+                                              'uri', () => items.appPackage);
+                                          await platform.invokeMethod(
+                                              "launchApp", args);
+                                        },
+                                        child: Container(
+                                          height: 65,
+                                          width: 65,
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              image: DecorationImage(
+                                                  image: MemoryImage(
+                                                      items.appIcon))),
+                                        ),
+                                      )
+                                  ],
                                 ),
                               )),
                         )
                       ],
                     );
-                  else
+                  } else {
                     return Stack(
                       children: [
                         AppDrawer(
@@ -306,6 +308,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ],
                     );
+                  }
                 }),
           ],
         ),
@@ -314,7 +317,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // onPressed: retrieve,
           onPressed: clearHive,
           tooltip: 'Increment',
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
         ),
       ),
     );

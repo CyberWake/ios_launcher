@@ -1,15 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:ios_launcher/drag_and_drop_gridview/drag.dart';
 
-import 'drag.dart';
-
-typedef bool WillAcceptCallback(int data, int position);
-typedef Widget WidgetPositionBuilder(int index);
+typedef WillAcceptCallback = bool Function(int data, int position);
+typedef WidgetPositionBuilder = Widget Function(int index);
 
 class MainGridView extends StatefulWidget {
-  MainGridView(
-      {this.key,
-      this.header,
+  const MainGridView(
+      {this.header,
       this.headerItemCount,
       this.reverse = false,
       this.headerGridDelegate,
@@ -40,8 +38,6 @@ class MainGridView extends StatefulWidget {
       required this.gridDelegate,
       this.dragStartBehavior = DragStartBehavior.start,
       this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual});
-
-  final Key? key;
 
   final bool reverse;
   final Widget? header;
@@ -89,7 +85,7 @@ class MainGridView extends StatefulWidget {
 class _MainGridViewState extends State<MainGridView> {
   late final ScrollController _scrollController;
   ScrollController? _scrollController2;
-  var _gridViewHeight, _gridViewWidth;
+  late double _gridViewHeight, _gridViewWidth;
   var _isDragStart = false;
   bool _ownsScrollController = false;
 
@@ -110,22 +106,22 @@ class _MainGridViewState extends State<MainGridView> {
 
   _moveUp() {
     _scrollController.animateTo(_scrollController.offset - _gridViewHeight,
-        curve: Curves.linear, duration: Duration(milliseconds: 500));
+        curve: Curves.linear, duration: const Duration(milliseconds: 500));
   }
 
   _moveDown() {
     _scrollController.animateTo(_scrollController.offset + _gridViewHeight,
-        curve: Curves.linear, duration: Duration(milliseconds: 500));
+        curve: Curves.linear, duration: const Duration(milliseconds: 500));
   }
 
   _moveLeft() {
     _scrollController.animateTo(_scrollController.offset - _gridViewWidth,
-        curve: Curves.linear, duration: Duration(milliseconds: 500));
+        curve: Curves.linear, duration: const Duration(milliseconds: 500));
   }
 
   _moveRight() {
     _scrollController.animateTo(_scrollController.offset + _gridViewWidth,
-        curve: Curves.linear, duration: Duration(milliseconds: 500));
+        curve: Curves.linear, duration: const Duration(milliseconds: 500));
   }
 
   Widget _headerChild(Widget header) {
@@ -155,10 +151,10 @@ class _MainGridViewState extends State<MainGridView> {
       dragStartBehavior: widget.dragStartBehavior,
       keyboardDismissBehavior: widget.keyboardDismissBehavior,
       itemBuilder: (context, pos) {
-        var mainWidget = widget.itemBuilder(context, pos);
+        final mainWidget = widget.itemBuilder(context, pos);
         if (mainWidget is DragItem) {
           if (!mainWidget.isDraggable) {
-            if (!mainWidget.isDropable) {
+            if (!mainWidget.isDroppable) {
               return mainWidget;
             }
             return _gridChild(mainWidget, pos, isNonDraggable: true);
@@ -183,10 +179,12 @@ class _MainGridViewState extends State<MainGridView> {
           if (!isFromArrangeP) {
             return widget.onWillAccept(int.parse(data), pos);
           }
-          return data.toString().contains("h") && onWillAcceptHeader != null
-              ? onWillAcceptHeader(
-                  int.parse(data.toString().replaceAll("h", "")), pos)
-              : false;
+          if (data.toString().contains("h") && onWillAcceptHeader != null) {
+            return onWillAcceptHeader(
+                int.parse(data.toString().replaceAll("h", "")), pos);
+          } else {
+            return false;
+          }
         }
 
         return false;
@@ -197,8 +195,9 @@ class _MainGridViewState extends State<MainGridView> {
             widget.onReorderHeader!(
                 int.parse(data.toString().replaceAll("h", "")), pos);
           }
-        } else
+        } else {
           widget.onReorder(int.parse(data), pos);
+        }
       },
     );
   }
@@ -210,7 +209,6 @@ class _MainGridViewState extends State<MainGridView> {
 
     return LongPressDraggable(
       data: isFromArrange ? "h$pos" : "$pos",
-      child: mainWidget,
       feedback: widget.isCustomFeedback && feedback != null
           ? feedback(pos)
           : mainWidget,
@@ -233,6 +231,7 @@ class _MainGridViewState extends State<MainGridView> {
           _isDragStart = false;
         });
       },
+      child: mainWidget,
     );
   }
 
@@ -250,13 +249,13 @@ class _MainGridViewState extends State<MainGridView> {
             gridDelegate: widget.headerGridDelegate ?? widget.gridDelegate,
             scrollDirection: Axis.horizontal,
             itemBuilder: (context, pos) {
-              var mainWidget = widget.itemBuilderHeader!(context, pos);
+              final mainWidget = widget.itemBuilderHeader!(context, pos);
               if (widget.allHeaderChildNonDraggable) {
                 return mainWidget;
               }
               if (mainWidget is DragItem) {
                 if (!mainWidget.isDraggable) {
-                  if (!mainWidget.isDropable) {
+                  if (!mainWidget.isDroppable) {
                     return mainWidget;
                   }
                   return _gridChild(mainWidget, pos,
@@ -289,13 +288,13 @@ class _MainGridViewState extends State<MainGridView> {
             padding: widget.headerPadding,
             gridDelegate: widget.headerGridDelegate ?? widget.gridDelegate,
             itemBuilder: (context, pos) {
-              var mainWidget = widget.itemBuilderHeader!(context, pos);
+              final mainWidget = widget.itemBuilderHeader!(context, pos);
               if (widget.allHeaderChildNonDraggable) {
                 return mainWidget;
               }
               if (mainWidget is DragItem) {
                 if (!mainWidget.isDraggable) {
-                  if (!mainWidget.isDropable) {
+                  if (!mainWidget.isDroppable) {
                     return mainWidget;
                   }
                   return _gridChild(mainWidget, pos,
@@ -333,7 +332,7 @@ class _MainGridViewState extends State<MainGridView> {
                   : _headerChild(header);
         }),
         !_isDragStart
-            ? SizedBox()
+            ? const SizedBox()
             : Align(
                 alignment: widget.isVertical
                     ? Alignment.topCenter
@@ -357,7 +356,7 @@ class _MainGridViewState extends State<MainGridView> {
                 ),
               ),
         !_isDragStart
-            ? SizedBox()
+            ? const SizedBox()
             : Align(
                 alignment: widget.isVertical
                     ? Alignment.bottomCenter

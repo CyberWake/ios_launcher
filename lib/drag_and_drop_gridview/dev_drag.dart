@@ -1,11 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
-import 'gridorbiter.dart';
+import 'package:ios_launcher/drag_and_drop_gridview/gridorbiter.dart';
 
 class DragAndDropGridView extends MainGridView {
-  DragAndDropGridView({
-    Key? key,
+  const DragAndDropGridView({
     bool reverse = false,
     Widget? header,
     ScrollController? controller,
@@ -30,7 +28,6 @@ class DragAndDropGridView extends MainGridView {
     WidgetPositionBuilder? feedback,
     WidgetPositionBuilder? childWhenDragging,
   }) : super(
-          key: key,
           reverse: reverse,
           header: header,
           itemBuilder: itemBuilder,
@@ -55,8 +52,7 @@ class DragAndDropGridView extends MainGridView {
           keyboardDismissBehavior: keyboardDismissBehavior,
         );
 
-  DragAndDropGridView.horizontal({
-    Key? key,
+  const DragAndDropGridView.horizontal({
     bool reverse = false,
     ScrollController? controller,
     bool? primary,
@@ -80,7 +76,6 @@ class DragAndDropGridView extends MainGridView {
     WidgetPositionBuilder? feedback,
     WidgetPositionBuilder? childWhenDragging,
   }) : super(
-          key: key,
           reverse: reverse,
           itemBuilder: itemBuilder,
           onWillAccept: onWillAccept,
@@ -105,8 +100,7 @@ class DragAndDropGridView extends MainGridView {
           isVertical: false,
         );
 
-  DragAndDropGridView.stickyHeader({
-    Key? key,
+  const DragAndDropGridView.stickyHeader({
     bool reverse = false,
     ScrollController? controller,
     bool? primary,
@@ -137,7 +131,6 @@ class DragAndDropGridView extends MainGridView {
     WidgetPositionBuilder? feedback,
     WidgetPositionBuilder? childWhenDragging,
   }) : super(
-          key: key,
           reverse: reverse,
           itemBuilder: itemBuilder,
           onWillAccept: onWillAccept,
@@ -169,8 +162,7 @@ class DragAndDropGridView extends MainGridView {
           headerItemCount: headerItemCount,
         );
 
-  DragAndDropGridView.horizontalStickyHeader({
-    Key? key,
+  const DragAndDropGridView.horizontalStickyHeader({
     bool reverse = false,
     ScrollController? controller,
     bool? primary,
@@ -201,7 +193,6 @@ class DragAndDropGridView extends MainGridView {
     WidgetPositionBuilder? feedback,
     WidgetPositionBuilder? childWhenDragging,
   }) : super(
-            key: key,
             reverse: reverse,
             itemBuilder: itemBuilder,
             onWillAccept: onWillAccept,

@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ios_launcher/models/app_info_model.dart';
-
-import 'app.dart';
+import 'package:ios_launcher/widgets/app.dart';
 
 class DrawerAppCategoryTile extends StatelessWidget {
   DrawerAppCategoryTile(
@@ -17,15 +16,15 @@ class DrawerAppCategoryTile extends StatelessWidget {
     return Container(
       width: MediaQuery.of(context).size.width * 0.4,
       height: MediaQuery.of(context).size.width * 0.4,
-      padding: EdgeInsets.all(7.5),
+      padding: const EdgeInsets.all(7.5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: Colors.white.withOpacity(0.5),
       ),
       child: Center(
         child: GridView.builder(
-          physics: NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: 1,
           ),
@@ -47,7 +46,7 @@ class DrawerAppCategoryTile extends StatelessWidget {
                                   MediaQuery.of(context).size.width * 0.1,
                               vertical:
                                   MediaQuery.of(context).size.height * 0.2),
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 10),
                           decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.9),
@@ -55,24 +54,24 @@ class DrawerAppCategoryTile extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(categoryName,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.w500,
                                       fontSize: 24)),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               Expanded(
                                 child: Scrollbar(
                                   controller: scrollController,
                                   isAlwaysShown: false,
-                                  radius: Radius.circular(5),
+                                  radius: const Radius.circular(5),
                                   child: GridView.builder(
                                       itemCount: categoryApps.length,
                                       controller: scrollController,
-                                      padding: EdgeInsets.all(5),
+                                      padding: const EdgeInsets.all(5),
                                       gridDelegate:
-                                          SliverGridDelegateWithFixedCrossAxisCount(
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 3,
                                         childAspectRatio: 1,
                                       ),
@@ -88,7 +87,7 @@ class DrawerAppCategoryTile extends StatelessWidget {
                                               categoryApps[index]
                                                   .appName
                                                   .split(' ')[0],
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   color: Colors.black),
                                               overflow: TextOverflow.ellipsis,
                                             ),
@@ -105,8 +104,9 @@ class DrawerAppCategoryTile extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: GridView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio: 1,
                     ),

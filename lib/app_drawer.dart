@@ -18,12 +18,12 @@ class AppDrawer extends StatelessWidget {
         children: [
           Expanded(
             child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   childAspectRatio: 0.88,
                   crossAxisSpacing: 20,
                   mainAxisSpacing: 20),
-              padding: EdgeInsets.symmetric(horizontal: 22.5),
+              padding: const EdgeInsets.symmetric(horizontal: 22.5),
               itemBuilder: (context, index) {
                 return Column(
                   children: [
@@ -32,7 +32,7 @@ class AppDrawer extends StatelessWidget {
                         categoryName: allCategoryApps[index].categoryName),
                     Text(
                       '${allCategoryApps[index].categoryName.split(' ')[0]} ${allCategoryApps[index].categoryApps.length}',
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.white),

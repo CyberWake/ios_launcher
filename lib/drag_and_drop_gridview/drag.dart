@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 
 class DragItem extends StatefulWidget {
-  final Key? key;
-  final bool isDraggable;
-  final bool isDropable;
-  final Widget child;
-
-  DragItem({
-    this.key,
+  const DragItem({
     this.isDraggable = true,
-    this.isDropable = true,
+    this.isDroppable = true,
     /*required*/ required this.child,
   });
+  final bool isDraggable;
+  final bool isDroppable;
+  final Widget child;
 
   @override
   _DragItemState createState() => _DragItemState();
