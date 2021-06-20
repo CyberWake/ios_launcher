@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:ios_launcher/drag_and_drop_gridview/dev_drag.dart';
 import 'package:ios_launcher/models/app_info_model.dart';
-
+import 'package:ios_launcher/models/category_app_model.dart';
 import 'package:ios_launcher/widgets/app.dart';
 
 class HomeAppsPage extends StatefulWidget {
-  const HomeAppsPage({Key? key, required this.pageApps}) : super(key: key);
+  const HomeAppsPage(
+      {Key? key, required this.pageApps, required this.categoryName})
+      : super(key: key);
+  final String categoryName;
   final List<AppInfo> pageApps;
 
   @override
@@ -14,9 +18,11 @@ class HomeAppsPage extends StatefulWidget {
 
 class _HomeAppsPageState extends State<HomeAppsPage> {
   late List<AppInfo> pageApps;
+  late Box box;
 
   @override
   void initState() {
+    box = Hive.box<CategoryApps>('categoryApps');
     pageApps = widget.pageApps;
     super.initState();
   }
@@ -26,9 +32,10 @@ class _HomeAppsPageState extends State<HomeAppsPage> {
     return DragAndDropGridView(
       // physics: NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: 0.7,
-      ),
+          crossAxisCount: 4,
+          childAspectRatio: 0.75,
+          mainAxisSpacing: 5,
+          crossAxisSpacing: 5),
       padding: const EdgeInsets.symmetric(horizontal: 22.5),
       itemBuilder: (context, index) {
         return Column(
@@ -36,7 +43,7 @@ class _HomeAppsPageState extends State<HomeAppsPage> {
           children: [
             App(
               app: pageApps[index],
-              size: 65.0,
+              size: 60.0,
             ),
             Material(
               color: Colors.transparent,
@@ -61,6 +68,10 @@ class _HomeAppsPageState extends State<HomeAppsPage> {
         final _temp = pageApps[newIndex];
         pageApps[newIndex] = pageApps[oldIndex];
         pageApps[oldIndex] = _temp;
+        box.put(
+            widget.categoryName,
+            CategoryApps(
+                categoryApps: pageApps, categoryName: widget.categoryName));
         setState(() {});
       },
     );

@@ -31,7 +31,7 @@ class AppDrawer extends StatelessWidget {
                         categoryApps: allCategoryApps[index].categoryApps,
                         categoryName: allCategoryApps[index].categoryName),
                     Text(
-                      '${allCategoryApps[index].categoryName.split(' ')[0]} ${allCategoryApps[index].categoryApps.length}',
+                      allCategoryApps[index].categoryName.split(' ')[0],
                       style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,

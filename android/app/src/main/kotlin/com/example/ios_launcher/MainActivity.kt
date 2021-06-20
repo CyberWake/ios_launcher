@@ -70,19 +70,19 @@ class MainActivity: FlutterActivity() {
             mainIntent.addCategory(Intent.CATEGORY_DEFAULT)
             var pkgAppsList = packageManager.queryIntentActivities(mainIntent, 0)
             val info0 = pkgAppsList[0].activityInfo.applicationInfo
-            res.add(mapOf("appName" to info0.loadLabel(packageManager),"package" to info0.packageName,"icon" to drawableToByteArray(info0.loadIcon(packageManager)),"category" to "Tray Apps"))
+            res.add(mapOf("appName" to info0.loadLabel(packageManager),"package" to info0.packageName,"icon" to drawableToByteArray(info0.loadIcon(packageManager)),"category" to "Tray Apps","index" to "0"))
             //Log.i("info0",res[0].toString())
 
             mainIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             pkgAppsList =
                 packageManager.queryIntentActivities(mainIntent, PackageManager.MATCH_DEFAULT_ONLY)
             val info1 = pkgAppsList[0].activityInfo.applicationInfo
-            res.add(mapOf("appName" to info1.loadLabel(packageManager),"package" to info1.packageName,"icon" to drawableToByteArray(info1.loadIcon(packageManager)),"category" to "Tray Apps"))
+            res.add(mapOf("appName" to info1.loadLabel(packageManager),"package" to info1.packageName,"icon" to drawableToByteArray(info1.loadIcon(packageManager)),"category" to "Tray Apps","index" to "3"))
             //Log.i("info1",res[1].toString())
 
             val smsPkgName = Telephony.Sms.getDefaultSmsPackage(context)
             val info2 = packageManager.getApplicationInfo(smsPkgName, 0)
-            res.add(mapOf("appName" to info2.loadLabel(packageManager),"package" to info2.packageName,"icon" to drawableToByteArray(info2.loadIcon(packageManager)),"category" to "Tray Apps"))
+            res.add(mapOf("appName" to info2.loadLabel(packageManager),"package" to info2.packageName,"icon" to drawableToByteArray(info2.loadIcon(packageManager)),"category" to "Tray Apps","index" to "1"))
             //Log.i("info2",res[2].toString())
 
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://"))
@@ -91,7 +91,7 @@ class MainActivity: FlutterActivity() {
                 PackageManager.MATCH_DEFAULT_ONLY
             )
             val info3 = resolveInfo!!.activityInfo.applicationInfo
-            res.add(mapOf("appName" to info3.loadLabel(packageManager),"package" to info3.packageName,"icon" to drawableToByteArray(info3.loadIcon(packageManager)),"category" to "Tray Apps"))
+            res.add(mapOf("appName" to info3.loadLabel(packageManager),"package" to info3.packageName,"icon" to drawableToByteArray(info3.loadIcon(packageManager)),"category" to "Tray Apps","index" to "2"))
             //Log.i("info3",res[3].toString())
             val packs = packageManager.getInstalledApplications(0)
             for (i in packs.indices) {

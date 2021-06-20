@@ -7,7 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:ios_launcher/app_drawer.dart';
-import 'package:ios_launcher/home_apps.dart';
+import 'package:ios_launcher/home.dart';
 import 'package:ios_launcher/models/app_info_model.dart';
 import 'package:ios_launcher/models/category_app_model.dart';
 import 'package:path_provider/path_provider.dart' as path;
@@ -15,7 +15,6 @@ import 'package:path_provider/path_provider.dart' as path;
 const platform = MethodChannel('com.cyberwake.ioslauncher/platformData');
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
   final Directory dir = await path.getApplicationDocumentsDirectory();
   Hive
     ..init(dir.path)
@@ -50,6 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late List<CategoryApps> retrievedCategoryApps = [];
   final List<CategoryApps> categoryAppsList = [];
   int pageIndex = 0;
+  PageController controller = PageController();
 
   Future<void> getApps() async {
     try {
@@ -75,13 +75,11 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         }
         final List<String> categoryNames = [];
-        print(result.length);
         result.forEach((element) {
           if (!categoryNames.contains(element['category'])) {
             categoryNames.add(element['category'] as String);
           }
         });
-        print(categoryNames.length);
         final List<AppInfo> applications =
             AppInfo.listOfMapToListOfAppInfo(result);
         categoryAppsList.add(CategoryApps(
@@ -106,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
             box.clear();
           }
           categoryAppsList.forEach((element) {
-            box.add(element);
+            box.put(element.categoryName, element);
           });
           setState(() {
             retrievedCategoryApps = categoryAppsList;
@@ -160,6 +158,11 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
+  void openDrawer() {
+    controller.animateToPage(1,
+        duration: const Duration(milliseconds: 200), curve: Curves.ease);
+  }
+
   @override
   Widget build(BuildContext context) {
     print(MediaQuery.of(context).size.height);
@@ -169,156 +172,67 @@ class _MyHomePageState extends State<MyHomePage> {
         body: Stack(
           children: [
             Container(
-              margin: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height * 0.0375),
               decoration: const BoxDecoration(
                   image: DecorationImage(
                       image: AssetImage('assets/background.jpg'),
                       fit: BoxFit.fitWidth)),
             ),
-            if (pageIndex != 0)
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                child: Container(
-                  alignment: Alignment.topLeft,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          const Color(0xFFffffff).withOpacity(0.5),
-                          Colors.pink.withOpacity(0.2),
-                        ],
-                        stops: [
-                          0.1,
-                          1,
-                        ]),
-                  ),
+            // if (pageIndex != 0)
+            //
+            PageView(
+              controller: controller,
+              onPageChanged: (index) {
+                setState(() {
+                  pageIndex = index;
+                });
+              },
+              children: [
+                Home(
+                  categoryApps: retrievedCategoryApps,
+                  openDrawer: openDrawer,
                 ),
-              ),
-            PageView.builder(
-                onPageChanged: (index) {
-                  setState(() {
-                    pageIndex = index;
-                  });
-                },
-                itemCount: 2,
-                itemBuilder: (BuildContext context, int screenIndex) {
-                  if (screenIndex == 0) {
-                    return Stack(
-                      children: [
-                        Container(
-                          height: MediaQuery.of(context).size.height * 0.0375,
-                          color: Colors.grey,
+                Stack(
+                  children: [
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 1, sigmaY: 2),
+                      child: Container(
+                        alignment: Alignment.topLeft,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                const Color(0xFFffffff).withOpacity(0.5),
+                                Colors.black.withOpacity(0.2),
+                              ],
+                              stops: [
+                                0.1,
+                                1,
+                              ]),
                         ),
-                        Align(
-                            alignment: Alignment.topCenter,
-                            child: HomeApps(
-                                apps: retrievedCategoryApps
-                                    .where((element) =>
-                                        element.categoryName == "SortedAllApp")
-                                    .toList()
-                                    .first)),
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                              height: MediaQuery.of(context).size.height * 0.12,
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 22.5),
-                              decoration: BoxDecoration(
-                                  color: Colors.white30.withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(20)),
-                              child: Center(
-                                child: ReorderableListView(
-                                  scrollDirection: Axis.horizontal,
-                                  shrinkWrap: true,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  onReorder: (int oldIndex, int newIndex) {
-                                    setState(() {
-                                      if (newIndex > oldIndex) {
-                                        newIndex -= 1;
-                                      }
-                                      final items = retrievedCategoryApps
-                                          .where((element) =>
-                                              element.categoryName ==
-                                              "Tray Apps")
-                                          .toList()
-                                          .first
-                                          .categoryApps
-                                          .removeAt(oldIndex);
-                                      retrievedCategoryApps
-                                          .where((element) =>
-                                              element.categoryName ==
-                                              "Tray Apps")
-                                          .toList()
-                                          .first
-                                          .categoryApps
-                                          .insert(newIndex, items);
-                                    });
-                                  },
-                                  children: <Widget>[
-                                    for (final items in retrievedCategoryApps
-                                        .where((element) =>
-                                            element.categoryName == "Tray Apps")
-                                        .toList()
-                                        .first
-                                        .categoryApps)
-                                      GestureDetector(
-                                        key: ValueKey(items),
-                                        onTap: () async {
-                                          final Map<String, dynamic> args =
-                                              <String, dynamic>{};
-                                          args.putIfAbsent(
-                                              'uri', () => items.appPackage);
-                                          await platform.invokeMethod(
-                                              "launchApp", args);
-                                        },
-                                        child: Container(
-                                          height: 65,
-                                          width: 65,
-                                          margin: const EdgeInsets.symmetric(
-                                              horizontal: 5),
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              image: DecorationImage(
-                                                  image: MemoryImage(
-                                                      items.appIcon))),
-                                        ),
-                                      )
-                                  ],
-                                ),
-                              )),
-                        )
-                      ],
-                    );
-                  } else {
-                    return Stack(
-                      children: [
-                        AppDrawer(
-                          allCategoryApps: retrievedCategoryApps
-                              .where((element) =>
-                                  element.categoryName != "SortedAllApp" &&
-                                  element.categoryName != "Trap Apps" &&
-                                  element.categoryName != "Undefined")
-                              .toList(),
-                        ),
-                      ],
-                    );
-                  }
-                }),
+                      ),
+                    ),
+                    AppDrawer(
+                      allCategoryApps: retrievedCategoryApps
+                          .where((element) =>
+                              element.categoryName != "SortedAllApp" &&
+                              element.categoryName != "Trap Apps")
+                          .toList(),
+                    ),
+                  ],
+                )
+              ],
+            ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          // onPressed: getApps,
+        /*floatingActionButton: FloatingActionButton(
+          onPressed: getApps,
           // onPressed: retrieve,
-          onPressed: clearHive,
+          // onPressed: clearHive,
           tooltip: 'Increment',
           child: const Icon(Icons.add),
-        ),
+        ),*/
       ),
     );
   }

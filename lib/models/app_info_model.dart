@@ -10,14 +10,16 @@ class AppInfo {
       {required this.appName,
       required this.appPackage,
       required this.appIcon,
-      required this.appCategory});
+      required this.appCategory,
+      required this.index});
 
   factory AppInfo.fromJson(Map<String, dynamic> json) {
     return AppInfo(
         appName: json['appName'] as String,
         appPackage: json['package'] as String,
         appIcon: json['icon'] as Uint8List,
-        appCategory: json['category'] as String);
+        appCategory: json['category'] as String,
+        index: json['index'] == null ? -1 : int.parse(json['index'] as String));
   }
 
   @HiveField(0)
@@ -28,6 +30,8 @@ class AppInfo {
   Uint8List appIcon;
   @HiveField(3)
   String appCategory;
+  @HiveField(4)
+  int index;
 
   static List<AppInfo> listOfMapToListOfAppInfo(List<dynamic> appList) {
     final List<AppInfo> _applications = [];
@@ -36,7 +40,8 @@ class AppInfo {
         'appName': element['appName'],
         'package': element['package'],
         'icon': element['icon'],
-        'category': element['category']
+        'category': element['category'],
+        'index': element['index'] ?? "-1"
       }));
     });
     return _applications;
