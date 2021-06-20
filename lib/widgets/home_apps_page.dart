@@ -30,11 +30,11 @@ class _HomeAppsPageState extends State<HomeAppsPage> {
   @override
   Widget build(BuildContext context) {
     return DragAndDropGridView(
-      // physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
-          childAspectRatio: 0.75,
-          mainAxisSpacing: 5,
+          childAspectRatio: 0.98,
+          mainAxisSpacing: 10,
           crossAxisSpacing: 5),
       padding: const EdgeInsets.symmetric(horizontal: 22.5),
       itemBuilder: (context, index) {

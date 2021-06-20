@@ -194,30 +194,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 Stack(
                   children: [
                     BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 1, sigmaY: 2),
+                      filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
                       child: Container(
-                        alignment: Alignment.topLeft,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                const Color(0xFFffffff).withOpacity(0.5),
-                                Colors.black.withOpacity(0.2),
-                              ],
-                              stops: [
-                                0.1,
-                                1,
-                              ]),
-                        ),
+                        color: Colors.black.withOpacity(0.01),
                       ),
                     ),
                     AppDrawer(
                       allCategoryApps: retrievedCategoryApps
                           .where((element) =>
                               element.categoryName != "SortedAllApp" &&
-                              element.categoryName != "Trap Apps")
+                              element.categoryName != "Tray Apps")
                           .toList(),
                     ),
                   ],
@@ -226,13 +212,13 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
-        /*floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton(
           onPressed: getApps,
           // onPressed: retrieve,
           // onPressed: clearHive,
           tooltip: 'Increment',
           child: const Icon(Icons.add),
-        ),*/
+        ),
       ),
     );
   }

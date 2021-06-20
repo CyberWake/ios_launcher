@@ -19,7 +19,7 @@ class AppInfo {
         appPackage: json['package'] as String,
         appIcon: json['icon'] as Uint8List,
         appCategory: json['category'] as String,
-        index: json['index'] == null ? -1 : int.parse(json['index'] as String));
+        index: json['index'] as int);
   }
 
   @HiveField(0)
@@ -41,7 +41,7 @@ class AppInfo {
         'package': element['package'],
         'icon': element['icon'],
         'category': element['category'],
-        'index': element['index'] ?? "-1"
+        'index': element['index']
       }));
     });
     return _applications;
