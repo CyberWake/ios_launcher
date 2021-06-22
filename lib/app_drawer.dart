@@ -43,12 +43,19 @@ class _AppDrawerState extends State<AppDrawer> {
                             widget.allCategoryApps[index].categoryApps,
                         categoryName:
                             widget.allCategoryApps[index].categoryName),
-                    Text(
-                      widget.allCategoryApps[index].categoryName.split(' ')[0],
-                      style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white),
+                    Hero(
+                      tag: widget.allCategoryApps[index].categoryName,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Text(
+                          widget.allCategoryApps[index].categoryName
+                              .split(' ')[0],
+                          style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white),
+                        ),
+                      ),
                     )
                   ],
                 );

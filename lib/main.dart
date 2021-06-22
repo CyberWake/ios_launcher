@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -152,8 +153,8 @@ class _MyHomePageState extends State<MyHomePage> {
     if (box.isEmpty) {
       getApps();
     } else {
-      print('here1');
       retrieve();
+      // getApps();
     }
     super.initState();
   }
@@ -165,53 +166,59 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print(MediaQuery.of(context).size.height);
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.black,
-        body: Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                  image: DecorationImage(
-                      image: AssetImage('assets/background.jpg'),
-                      fit: BoxFit.fitWidth)),
-            ),
-            // if (pageIndex != 0)
-            //
-            PageView(
-              controller: controller,
-              onPageChanged: (index) {
-                setState(() {
-                  pageIndex = index;
-                });
-              },
-              children: [
-                Home(
-                  categoryApps: retrievedCategoryApps,
-                  openDrawer: openDrawer,
-                ),
-                Stack(
-                  children: [
-                    BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                      child: Container(
-                        color: Colors.black.withOpacity(0.01),
+        backgroundColor: Colors.white54,
+        body: retrievedCategoryApps.isNotEmpty
+            ? Stack(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage('assets/background.jpg'),
+                            fit: BoxFit.fitWidth)),
+                  ),
+                  BackdropFilter(
+                    filter: ImageFilter.blur(
+                        sigmaX: pageIndex != 0 ? 3 : 0,
+                        sigmaY: pageIndex != 0 ? 3 : 0),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.01),
+                    ),
+                  ),
+                  PageView(
+                    controller: controller,
+                    onPageChanged: (index) {
+                      setState(() {
+                        pageIndex = index;
+                      });
+                    },
+                    children: [
+                      Home(
+                        categoryApps: retrievedCategoryApps.toSet().toList(),
+                        openDrawer: openDrawer,
                       ),
-                    ),
-                    AppDrawer(
-                      allCategoryApps: retrievedCategoryApps
-                          .where((element) =>
-                              element.categoryName != "SortedAllApp" &&
-                              element.categoryName != "Tray Apps")
-                          .toList(),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ],
-        ),
+                      Stack(
+                        children: [
+                          AppDrawer(
+                            allCategoryApps: retrievedCategoryApps
+                                .where((element) =>
+                                    element.categoryName != "SortedAllApp" &&
+                                    element.categoryName != "Tray Apps")
+                                .toSet()
+                                .toList(),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ],
+              )
+            : const Center(
+                child: CupertinoActivityIndicator(
+                  radius: 25,
+                ),
+              ),
         floatingActionButton: FloatingActionButton(
           onPressed: getApps,
           // onPressed: retrieve,

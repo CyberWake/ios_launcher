@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ios_launcher/home_apps.dart';
 import 'package:ios_launcher/models/category_app_model.dart';
+import 'package:ios_launcher/test_home_drawer.dart';
 import 'package:ios_launcher/widgets/tray_apps.dart';
 
 class Home extends StatefulWidget {
@@ -20,15 +20,21 @@ class _HomeState extends State<Home> {
       children: [
         Container(
           alignment: Alignment.topCenter,
-          child: HomeApps(
+          child: TestHomeDrawer(
             apps: widget.categoryApps
                 .where((element) => element.categoryName == "SortedAllApp")
                 .toList()
                 .first,
-            openDrawer: () {
-              widget.openDrawer();
-            },
           ),
+          // child: HomeApps(
+          //   apps: widget.categoryApps
+          //       .where((element) => element.categoryName == "SortedAllApp")
+          //       .toList()
+          //       .first,
+          //   openDrawer: () {
+          //     widget.openDrawer();
+          //   },
+          // ),
         ),
         Align(
           alignment: Alignment.bottomCenter,

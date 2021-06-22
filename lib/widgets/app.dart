@@ -8,12 +8,14 @@ class App extends StatelessWidget {
       required this.app,
       this.popOnLaunch = false,
       this.size = 55,
-      this.launchOnTap = true})
+      this.launchOnTap = true,
+      this.onTapApp = false})
       : super(key: key);
   final AppInfo app;
   final bool popOnLaunch;
   final double size;
   final bool launchOnTap;
+  final bool onTapApp;
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +34,22 @@ class App extends StatelessWidget {
                 height: size,
                 width: size,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    image: DecorationImage(image: MemoryImage(app.appIcon)))),
+                    color: Colors.transparent,
+                    borderRadius: onTapApp
+                        ? BorderRadius.circular(7.5)
+                        : BorderRadius.circular(size / 4),
+                    image: DecorationImage(
+                        image: MemoryImage(app.appIcon), fit: BoxFit.fill))),
           )
         : Container(
             height: size,
             width: size,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                image: DecorationImage(image: MemoryImage(app.appIcon))));
+                color: Colors.transparent,
+                borderRadius: onTapApp
+                    ? BorderRadius.circular(7.5)
+                    : BorderRadius.circular(size / 4),
+                image: DecorationImage(
+                    image: MemoryImage(app.appIcon), fit: BoxFit.fill)));
   }
 }
