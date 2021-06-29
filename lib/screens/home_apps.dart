@@ -9,15 +9,15 @@ import 'package:ios_launcher/models/app_info_model.dart';
 import 'package:ios_launcher/models/category_app_model.dart';
 import 'package:ios_launcher/widgets/app.dart';
 
-class TestHomeDrawer extends StatefulWidget {
-  const TestHomeDrawer({Key? key, required this.apps}) : super(key: key);
+class HomePageApps extends StatefulWidget {
+  const HomePageApps({Key? key, required this.apps}) : super(key: key);
   final CategoryApps apps;
 
   @override
-  _TestHomeDrawerState createState() => _TestHomeDrawerState();
+  _HomePageAppsState createState() => _HomePageAppsState();
 }
 
-class _TestHomeDrawerState extends State<TestHomeDrawer> {
+class _HomePageAppsState extends State<HomePageApps> {
   final ScrollController controller = ScrollController();
   late final CategoryApps apps;
   late Box box;
@@ -30,7 +30,6 @@ class _TestHomeDrawerState extends State<TestHomeDrawer> {
     apps = widget.apps;
     if (apps.categoryApps.length % 24 != 0) {
       final int emptyApps = 24 - apps.categoryApps.length % 24;
-      print(emptyApps);
       for (int i = 0; i < emptyApps; i++) {
         apps.categoryApps.add(AppInfo(
             appName: '',
@@ -63,7 +62,7 @@ class _TestHomeDrawerState extends State<TestHomeDrawer> {
                       implicitScroll.value = true;
                     });
                     controller.animateTo(
-                        (MediaQuery.of(context).size.width - 17) * page,
+                        (MediaQuery.of(context).size.width - 14) * page,
                         duration: const Duration(milliseconds: 200),
                         curve: Curves.ease);
                   } else if (controller.position.userScrollDirection ==
@@ -74,7 +73,7 @@ class _TestHomeDrawerState extends State<TestHomeDrawer> {
                       implicitScroll.value = true;
                     });
                     controller.animateTo(
-                        (MediaQuery.of(context).size.width - 17) * page,
+                        (MediaQuery.of(context).size.width - 14) * page,
                         duration: const Duration(milliseconds: 200),
                         curve: Curves.ease);
                   }
@@ -87,39 +86,48 @@ class _TestHomeDrawerState extends State<TestHomeDrawer> {
               },
               child: DragAndDropGridView.horizontal(
                 controller: controller,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: (apps.categoryApps.length / 24).ceil(),
-                    childAspectRatio: 0.98,
-                    crossAxisSpacing: 2.5,
-                    mainAxisSpacing: 0),
-                padding: const EdgeInsets.symmetric(horizontal: 9),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 6,
+                ),
+                padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.029),
                 itemBuilder: (context, index) {
-                  if (index < widget.apps.categoryApps.length) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        App(
-                          app: apps.categoryApps[index],
-                          size: 60.0,
-                        ),
-                        Material(
-                          color: Colors.transparent,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            child: Text(
-                              apps.categoryApps[index].appName.split(' ')[0],
-                              style: const TextStyle(color: Colors.white),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                  if (apps.categoryApps[index].appName.isNotEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10.0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          App(
+                            app: apps.categoryApps[index],
+                            size: MediaQuery.of(context).size.height * 0.066,
                           ),
-                        )
-                      ],
+                          Expanded(
+                            child: Material(
+                              color: Colors.transparent,
+                              child: Text(
+                                apps.categoryApps[index].appName,
+                                style: const TextStyle(color: Colors.white),
+                                textAlign: TextAlign.center,
+                                // overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     );
                   } else {
-                    return Container();
+                    return Container(
+                      height: 10,
+                      width: 10,
+                      padding: const EdgeInsets.all(10.0),
+                      color: Colors.transparent,
+                    );
                   }
                 },
-                itemCount: (apps.categoryApps.length / 24).ceil() * 24,
+                itemCount: apps.categoryApps.length,
                 onWillAccept: (oldIndex, newIndex) {
                   print('here');
                   return true;

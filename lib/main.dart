@@ -7,10 +7,11 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
-import 'package:ios_launcher/app_drawer.dart';
-import 'package:ios_launcher/home.dart';
 import 'package:ios_launcher/models/app_info_model.dart';
 import 'package:ios_launcher/models/category_app_model.dart';
+import 'package:ios_launcher/screens/app_drawer.dart';
+import 'package:ios_launcher/screens/launcher_settings.dart';
+import 'package:ios_launcher/widgets/home_drawer.dart';
 import 'package:path_provider/path_provider.dart' as path;
 
 const platform = MethodChannel('com.cyberwake.ioslauncher/platformData');
@@ -180,8 +181,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   BackdropFilter(
                     filter: ImageFilter.blur(
-                        sigmaX: pageIndex != 0 ? 3 : 0,
-                        sigmaY: pageIndex != 0 ? 3 : 0),
+                        sigmaX: pageIndex == 1 ? 3 : 0,
+                        sigmaY: pageIndex == 1 ? 3 : 0),
                     child: Container(
                       color: Colors.black.withOpacity(0.01),
                     ),
@@ -194,22 +195,18 @@ class _MyHomePageState extends State<MyHomePage> {
                       });
                     },
                     children: [
-                      Home(
+                      HomeDrawer(
                         categoryApps: retrievedCategoryApps.toSet().toList(),
-                        openDrawer: openDrawer,
                       ),
-                      Stack(
-                        children: [
-                          AppDrawer(
-                            allCategoryApps: retrievedCategoryApps
-                                .where((element) =>
-                                    element.categoryName != "SortedAllApp" &&
-                                    element.categoryName != "Tray Apps")
-                                .toSet()
-                                .toList(),
-                          ),
-                        ],
-                      )
+                      AppDrawer(
+                        allCategoryApps: retrievedCategoryApps
+                            .where((element) =>
+                                element.categoryName != "SortedAllApp" &&
+                                element.categoryName != "Tray Apps")
+                            .toSet()
+                            .toList(),
+                      ),
+                      LauncherSettings(),
                     ],
                   ),
                 ],

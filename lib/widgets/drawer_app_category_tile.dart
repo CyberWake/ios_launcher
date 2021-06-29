@@ -178,8 +178,7 @@ class DrawerAppCategoryTile extends StatelessWidget {
                         ),
                       );
                     },
-                    itemCount:
-                        categoryApps.length >= 7 ? 4 : categoryApps.length - 3,
+                    itemCount: categoryApps.length - 3,
                   ),
                 ),
               );

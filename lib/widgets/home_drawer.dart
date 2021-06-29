@@ -1,40 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:ios_launcher/models/category_app_model.dart';
-import 'package:ios_launcher/test_home_drawer.dart';
+import 'package:ios_launcher/screens/home_apps.dart';
 import 'package:ios_launcher/widgets/tray_apps.dart';
 
-class Home extends StatefulWidget {
-  const Home({Key? key, required this.categoryApps, required this.openDrawer})
-      : super(key: key);
+class HomeDrawer extends StatefulWidget {
+  const HomeDrawer({Key? key, required this.categoryApps}) : super(key: key);
   final List<CategoryApps> categoryApps;
-  final Function openDrawer;
 
   @override
-  _HomeState createState() => _HomeState();
+  _HomeDrawerState createState() => _HomeDrawerState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeDrawerState extends State<HomeDrawer> {
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Container(
           alignment: Alignment.topCenter,
-          child: TestHomeDrawer(
+          child: HomePageApps(
             apps: widget.categoryApps
                 .where((element) => element.categoryName == "SortedAllApp")
                 .toList()
                 .first,
           ),
-          // child: HomeApps(
-          //   apps: widget.categoryApps
-          //       .where((element) => element.categoryName == "SortedAllApp")
-          //       .toList()
-          //       .first,
-          //   openDrawer: () {
-          //     widget.openDrawer();
-          //   },
-          // ),
         ),
         Align(
           alignment: Alignment.bottomCenter,
